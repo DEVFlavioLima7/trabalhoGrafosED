@@ -2,29 +2,36 @@
 
 static Celula planilha[NUM_CELLS];
 
-static int grafo_adj[NUM_CELLS][NUM_CELLS];
+int grafo_adj[NUM_CELLS][NUM_CELLS];
 
 static int get_indice_celula(char col, int row)
 {
-  if (toupper(col) < 'A' || toupper(col) > 'H' || row < 1 || row > NUM_ROWS)
+  int indice = -1;
+
+  if (toupper(col) >= 'A' && toupper(col) <= 'H' && row >= 1 && row <= NUM_ROWS)
   {
-    return -1;
+    int col_idx = toupper(col) - 'A';
+    int row_idx = row - 1;
+    indice = row_idx * NUM_COLS + col_idx;
   }
-  int col_idx = toupper(col) - 'A';
-  int row_idx = row - 1;
-  return row_idx * NUM_COLS + col_idx;
+
+  return indice;
 }
 
 void get_nome_celula(int indice, char *nome)
 {
+
   if (indice < 0 || indice >= NUM_CELLS)
   {
     strcpy(nome, "ERR");
-    return;
   }
-  int col_idx = indice % NUM_COLS;
-  int row_idx = indice / NUM_COLS;
-  sprintf(nome, "%c%d", 'A' + col_idx, row_idx + 1);
+  else
+  {
+    // Se for válido, calcula o nome da célula
+    int col_idx = indice % NUM_COLS;
+    int row_idx = indice / NUM_COLS;
+    sprintf(nome, "%c%d", 'A' + col_idx, row_idx + 1);
+  }
 }
 
 static double calcular_celula(int indice);
@@ -38,44 +45,53 @@ static void adicionar_dependencias_range(int indice_origem, const char *range_st
   char *inicio_str = strtok(str_copia, delimitadores);
   char *fim_str = strtok(NULL, delimitadores);
 
-  if (!inicio_str || !fim_str)
-    return;
-
-  int indice_inicio = parse_nome_celula(inicio_str);
-  int indice_fim = parse_nome_celula(fim_str);
-  if (indice_inicio == -1 || indice_fim == -1)
-    return;
-
-  int col_inicio = indice_inicio % NUM_COLS;
-  int row_inicio = indice_inicio / NUM_COLS;
-  int col_fim = indice_fim % NUM_COLS;
-  int row_fim = indice_fim / NUM_COLS;
-
-  if (col_inicio > col_fim)
+  // Verifica se os tokens (strings das células) existem
+  if (inicio_str && fim_str)
   {
-    int temp = col_inicio;
-    col_inicio = col_fim;
-    col_fim = temp;
-  }
-  if (row_inicio > row_fim)
-  {
-    int temp = row_inicio;
-    row_inicio = row_fim;
-    row_fim = temp;
-  }
+    int indice_inicio = parse_nome_celula(inicio_str);
+    int indice_fim = parse_nome_celula(fim_str);
 
-  for (int r = row_inicio; r <= row_fim; r++)
-  {
-    for (int c = col_inicio; c <= col_fim; c++)
+    // Verifica se os índices obtidos são válidos
+    if (indice_inicio != -1 && indice_fim != -1)
     {
-      int indice_dep = r * NUM_COLS + c;
-      grafo_adj[indice_origem][indice_dep] = 1;
+      int col_inicio = indice_inicio % NUM_COLS;
+      int row_inicio = indice_inicio / NUM_COLS;
+      int col_fim = indice_fim % NUM_COLS;
+      int row_fim = indice_fim / NUM_COLS;
+
+      // Normaliza as coordenadas garante que inicio <= fim
+      if (col_inicio > col_fim)
+      {
+        int temp = col_inicio;
+        col_inicio = col_fim;
+        col_fim = temp;
+      }
+      if (row_inicio > row_fim)
+      {
+        int temp = row_inicio;
+        row_inicio = row_fim;
+        row_fim = temp;
+      }
+
+      // Executa o loop para marcar as dependências na MATRIZ
+      for (int r = row_inicio; r <= row_fim; r++)
+      {
+        for (int c = col_inicio; c <= col_fim; c++)
+        {
+          int indice_dep = r * NUM_COLS + c;
+
+          grafo_adj[indice_origem][indice_dep] = 1;
+        }
+      }
     }
   }
 }
 
 static double executar_funcao(const char *nome_funcao, const char *range_str)
 {
+
+  double valor_final = 0.0;
+
   char str_copia[64];
   strcpy(str_copia, range_str);
 
@@ -83,127 +99,179 @@ static double executar_funcao(const char *nome_funcao, const char *range_str)
   char *inicio_str = strtok(str_copia, delimitadores);
   char *fim_str = strtok(NULL, delimitadores);
 
-  if (!inicio_str || !fim_str)
-    return 0.0;
-
-  int indice_inicio = parse_nome_celula(inicio_str);
-  int indice_fim = parse_nome_celula(fim_str);
-  if (indice_inicio == -1 || indice_fim == -1)
-    return 0.0;
-
-  int col_inicio = indice_inicio % NUM_COLS;
-  int row_inicio = indice_inicio / NUM_COLS;
-  int col_fim = indice_fim % NUM_COLS;
-  int row_fim = indice_fim / NUM_COLS;
-
-  if (col_inicio > col_fim)
+  // Validação dos tokens substitui o primeiro return
+  if (inicio_str && fim_str)
   {
-    int temp = col_inicio;
-    col_inicio = col_fim;
-    col_fim = temp;
-  }
-  if (row_inicio > row_fim)
-  {
-    int temp = row_inicio;
-    row_inicio = row_fim;
-    row_fim = temp;
-  }
+    int indice_inicio = parse_nome_celula(inicio_str);
+    int indice_fim = parse_nome_celula(fim_str);
 
-  double resultado = 0.0;
-  double min_val = DBL_MAX;
-  double max_val = -DBL_MAX;
-  int count = 0;
-
-  for (int r = row_inicio; r <= row_fim; r++)
-  {
-    for (int c = col_inicio; c <= col_fim; c++)
+    // Validação dos índices substitui o segundo return
+    if (indice_inicio != -1 && indice_fim != -1)
     {
-      int indice_dep = r * NUM_COLS + c;
-      double valor_dep = calcular_celula(indice_dep);
+      int col_inicio = indice_inicio % NUM_COLS;
+      int row_inicio = indice_inicio / NUM_COLS;
+      int col_fim = indice_fim % NUM_COLS;
+      int row_fim = indice_fim / NUM_COLS;
 
+      // Normalização das coordenadas
+      if (col_inicio > col_fim)
+      {
+        int temp = col_inicio;
+        col_inicio = col_fim;
+        col_fim = temp;
+      }
+      if (row_inicio > row_fim)
+      {
+        int temp = row_inicio;
+        row_inicio = row_fim;
+        row_fim = temp;
+      }
+
+      // Variáveis acumuladoras
+      double resultado = 0.0;
+      double min_val = DBL_MAX;
+      double max_val = -DBL_MAX;
+      int count = 0;
+
+      // Loop de processamento
+      for (int r = row_inicio; r <= row_fim; r++)
+      {
+        for (int c = col_inicio; c <= col_fim; c++)
+        {
+          int indice_dep = r * NUM_COLS + c;
+          double valor_dep = calcular_celula(indice_dep);
+
+          if (strncmp(nome_funcao, "soma", 4) == 0)
+          {
+            resultado += valor_dep;
+          }
+          else if (strncmp(nome_funcao, "media", 5) == 0)
+          {
+            resultado += valor_dep;
+            count++;
+          }
+          else if (strncmp(nome_funcao, "max", 3) == 0)
+          {
+            if (valor_dep > max_val)
+              max_val = valor_dep;
+          }
+          else if (strncmp(nome_funcao, "min", 3) == 0)
+          {
+            if (valor_dep < min_val)
+              min_val = valor_dep;
+          }
+        }
+      }
+
+      // Seleção do resultado final substitui os returns finais
       if (strncmp(nome_funcao, "soma", 4) == 0)
       {
-        resultado += valor_dep;
+        valor_final = resultado;
       }
       else if (strncmp(nome_funcao, "media", 5) == 0)
       {
-        resultado += valor_dep;
-        count++;
+        valor_final = (count == 0) ? 0.0 : (resultado / count);
       }
       else if (strncmp(nome_funcao, "max", 3) == 0)
       {
-        if (valor_dep > max_val)
-          max_val = valor_dep;
+        valor_final = max_val;
       }
       else if (strncmp(nome_funcao, "min", 3) == 0)
       {
-        if (valor_dep < min_val)
-          min_val = valor_dep;
+        valor_final = min_val;
       }
     }
   }
 
-  if (strncmp(nome_funcao, "soma", 4) == 0)
-    return resultado;
-  if (strncmp(nome_funcao, "media", 5) == 0)
-    return (count == 0) ? 0.0 : (resultado / count);
-  if (strncmp(nome_funcao, "max", 3) == 0)
-    return max_val;
-  if (strncmp(nome_funcao, "min", 3) == 0)
-    return min_val;
-
-  return 0.0;
+  return valor_final;
 }
-
 static double calcular_celula(int indice)
 {
+  // Variável única de retorno
+  double valor_retorno = 0.0;
   Celula *celula = &planilha[indice];
 
+  // Valor já calculado
   if (celula->visitada == 2)
-    return celula->valor;
-  if (celula->visitada == 1)
+  {
+    valor_retorno = celula->valor;
+  }
+  // Ciclo detectado
+  else if (celula->visitada == 1)
   {
     printf("ERRO: Referencia circular detectada na celula ");
     char nome[4];
     get_nome_celula(indice, nome);
     printf("%s\n", nome);
-    return 0.0;
+    valor_retorno = 0.0;
   }
-  celula->visitada = 1;
+  // Precisa calcular
+  else
+  {
+    celula->visitada = 1; // Marca como em processamento'
 
-  switch (celula->tipo)
-  {
-  case TIPO_VAZIA:
-    celula->valor = 0.0;
-    break;
-  case TIPO_NUMERO:
-    celula->valor = atof(celula->input);
-    break;
-  case TIPO_REFERENCIA:
-  {
-    int indice_dep = parse_nome_celula(celula->input + 1);
-    celula->valor = (indice_dep != -1) ? calcular_celula(indice_dep) : 0.0;
-    break;
+    switch (celula->tipo)
+    {
+    case TIPO_VAZIA:
+      celula->valor = 0.0;
+      break;
+
+    case TIPO_NUMERO:
+      celula->valor = atof(celula->input);
+      break;
+
+    case TIPO_REFERENCIA:
+    {
+      int indice_dep = parse_nome_celula(celula->input + 1);
+
+      if (indice_dep != -1)
+      {
+        celula->valor = calcular_celula(indice_dep);
+      }
+      else
+      {
+        celula->valor = 0.0;
+      }
+      break;
+    }
+
+    case TIPO_FUNCAO:
+    {
+      char *nome_funcao = celula->input + 1;
+      char *range_str = strchr(celula->input, '(');
+
+      if (range_str)
+      {
+        celula->valor = executar_funcao(nome_funcao, range_str + 1);
+      }
+      else
+      {
+        celula->valor = 0.0;
+      }
+      break;
+    }
+    }
+
+    celula->visitada = 2; // Marca como 'calculado'
+    valor_retorno = celula->valor;
   }
-  case TIPO_FUNCAO:
-  {
-    char *nome_funcao = celula->input + 1;
-    char *range_str = strchr(celula->input, '(');
-    celula->valor = range_str ? executar_funcao(nome_funcao, range_str + 1) : 0.0;
-    break;
-  }
-  }
-  celula->visitada = 2;
-  return celula->valor;
+
+  return valor_retorno;
 }
 
 int parse_nome_celula(const char *str)
 {
-  if (!str || strlen(str) < 2)
-    return -1;
-  char col = str[0];
-  int row = atoi(&str[1]);
-  return get_indice_celula(col, row);
+  int indice = -1;
+
+  // Verifica se a string existe e tem tamanho suficiente
+  if (str && strlen(str) >= 2)
+  {
+    char col = str[0];
+    int row = atoi(&str[1]);
+    indice = get_indice_celula(col, row);
+  }
+
+  return indice;
 }
 
 void inicializar_planilha(void)
@@ -245,6 +313,7 @@ void atualizar_celula(int indice, const char *input)
     free(planilha[indice].input);
   }
 
+  // Limpa linha da matriz
   for (int j = 0; j < NUM_CELLS; j++)
   {
     grafo_adj[indice][j] = 0;
@@ -269,7 +338,6 @@ void atualizar_celula(int indice, const char *input)
     char *range_str = strchr(planilha[indice].input, '(');
     if (range_str)
     {
-
       adicionar_dependencias_range(indice, range_str + 1);
     }
   }
@@ -280,6 +348,7 @@ void atualizar_celula(int indice, const char *input)
     int indice_dep = parse_nome_celula(&planilha[indice].input[1]);
     if (indice_dep != -1)
     {
+      // Matriz: marca dependência
       grafo_adj[indice][indice_dep] = 1;
     }
   }
@@ -336,53 +405,4 @@ void exibir_planilha(void)
     printf("\n");
   }
   printf("\n");
-}
-
-NoDependencia *get_lista_adjacencia(int indice)
-{
-  if (indice < 0 || indice >= NUM_CELLS)
-    return NULL;
-
-  NoDependencia *cabeca_lista = NULL;
-  NoDependencia *cauda_lista = NULL;
-
-  for (int j = 0; j < NUM_CELLS; j++)
-  {
-    if (grafo_adj[indice][j] == 1)
-    {
-
-      NoDependencia *novo_no = (NoDependencia *)malloc(sizeof(NoDependencia));
-      if (!novo_no)
-        continue;
-      novo_no->indice_dependencia = j;
-      novo_no->proximo = NULL;
-
-      if (cabeca_lista == NULL)
-      {
-
-        cabeca_lista = novo_no;
-        cauda_lista = novo_no;
-      }
-      else
-      {
-
-        cauda_lista->proximo = novo_no;
-        cauda_lista = novo_no;
-      }
-    }
-  }
-
-  return cabeca_lista;
-}
-
-void free_lista_adjacencia(NoDependencia *lista)
-{
-
-  NoDependencia *atual = lista;
-  while (atual != NULL)
-  {
-    NoDependencia *proximo = atual->proximo;
-    free(atual);
-    atual = proximo;
-  }
 }

@@ -1,19 +1,13 @@
 #include <stdio.h>
 #include <string.h>
 #include "planilha.h"
-#include "buscas.h" // Inclui a nova interface
+#include "buscas.h"
 
-// Função de pausa continua a mesma
 void pausar_e_limpar_buffer()
 {
   printf("Pressione Enter para continuar...\n");
-  int c;
-  while ((c = getchar()) != '\n' && c != EOF)
-    ;
-  if (c == EOF)
-    return;
-  while ((c = getchar()) != '\n' && c != EOF)
-    ;
+
+  getchar();
 }
 
 int main()
@@ -22,9 +16,8 @@ int main()
   char comando_ou_celula[10];
   char argumento_ou_valor[252];
 
-  // --- MUDANÇA: Arrays para guardar resultados e nomes ---
-  int resultados_busca[NUM_CELLS]; // Um array para guardar os resultados
-  char nome_celula_temp[4];        // Um buffer para converter índice em nome
+  int resultados_busca[NUM_CELLS];
+  char nome_celula_temp[4];
 
   inicializar_planilha();
 
@@ -57,20 +50,16 @@ int main()
         if (indice != -1)
         {
 
-          // --- MUDANÇA: Lógica de print agora está no main ---
           printf("BFS a partir de %s:\n", argumento_ou_valor);
 
-          // 1. Chama a busca e recebe os resultados
           int num_encontrados = buscar_bfs(indice, resultados_busca);
 
-          // 2. Faz um loop e imprime os resultados
           for (int i = 0; i < num_encontrados; i++)
           {
             get_nome_celula(resultados_busca[i], nome_celula_temp);
             printf("%s ", nome_celula_temp);
           }
           printf("\nFim da busca.\n\n");
-          // --- Fim da Mudança ---
 
           pausar_e_limpar_buffer();
         }
@@ -87,20 +76,16 @@ int main()
         if (indice != -1)
         {
 
-          // --- MUDANÇA: Lógica de print agora está no main ---
           printf("DFS a partir de %s:\n", argumento_ou_valor);
 
-          // 1. Chama a busca e recebe os resultados
           int num_encontrados = buscar_dfs(indice, resultados_busca);
 
-          // 2. Faz um loop e imprime os resultados
           for (int i = 0; i < num_encontrados; i++)
           {
             get_nome_celula(resultados_busca[i], nome_celula_temp);
             printf("%s ", nome_celula_temp);
           }
           printf("\nFim da busca.\n\n");
-          // --- Fim da Mudança ---
 
           pausar_e_limpar_buffer();
         }
@@ -111,7 +96,6 @@ int main()
         continue;
       }
 
-      // Lógica de atualização da célula (sem mudanças)
       int indice = parse_nome_celula(comando_ou_celula);
       if (indice == -1)
       {

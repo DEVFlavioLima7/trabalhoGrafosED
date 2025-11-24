@@ -40,9 +40,8 @@ void calcular_tudo(void);
 void exibir_planilha(void);
 int parse_nome_celula(const char *str);
 
-NoDependencia *get_lista_adjacencia(int indice);
-
-void free_lista_adjacencia(NoDependencia *lista);
 void get_nome_celula(int indice, char *nome);
+
+int obter_vizinhos(int indice, int *saida);
 
 #endif
