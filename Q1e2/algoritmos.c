@@ -105,5 +105,5 @@ int dijkstra_lista(GrafoLista *g, int origem, int destino) {
 }
 
 // ... (Implementação futura de BFS e DFS)
-void bfs_matriz(GrafoMatriz *g, int origem) { /* ... */ }
-void dfs_matriz(GrafoMatriz *g, int origem) { /* ... */ }
+//void bfs_matriz(GrafoMatriz *g, int origem) { /* ... */ }
+//void dfs_matriz(GrafoMatriz *g, int origem) { /* ... */ }

@@ -230,7 +230,7 @@ void simular_e_comparar_hashing() {
 
     // --- Apresentação dos Resultados ---
     printf("\n--- RESULTADOS DA SIMULACAO DE HASHING (Questao 7) ---\n");
-    printf("Simulação de insercao de %d alunos em 4 cenarios diferentes.\n", N_ALUNOS);
+    printf("Simulacao de insercao de %d alunos em 4 cenarios diferentes.\n", N_ALUNOS);
     
     printf("\n| Teste | Funcao Hashing | Tamanho (M) | Colisoes | Tempo Total Insercao (s) |\n");
     printf("|:-----:|:--------------:|:-----------:|:--------:|:------------------------:|\n");
@@ -252,7 +252,7 @@ void simular_e_comparar_hashing() {
     if (th_b1->colisoes == max_colisoes) printf("  - Teste B1 (Hash B, Tam 1211)\n");
     if (th_b2->colisoes == max_colisoes) printf("  - Teste B2 (Hash B, Tam 1280)\n");
     
-    printf("* O desempenho (tempo) esta diretamente ligado ao numero de colisoes e à eficiência da funcao de colisao (sonda).\n");
+    printf("* O desempenho (tempo) esta diretamente ligado ao numero de colisoes e a eficiencia da funcao de colisao (sonda).\n");
     
     // --- Destruição ---
     destruir_tabela_hash(th_a1);

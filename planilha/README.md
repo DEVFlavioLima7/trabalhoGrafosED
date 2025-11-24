@@ -1,8 +1,14 @@
 ## planilhas
+cd planilha
 
 gcc main.c planilha_matrix_adjacencias.c -o planilha
 
+.\planilha.exe
+
+
 gcc main.c planilha_lista_adjacencias.c -o planilha
+
+.\busca_lista.exe
 
 
 ## buscas 

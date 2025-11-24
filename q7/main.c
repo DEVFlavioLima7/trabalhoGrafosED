@@ -9,10 +9,10 @@ void menu() {
     printf("\n===========================================\n");
     printf("   TRABALHO DE ESTRUTURAS DE DADOS II\n");
     printf("===========================================\n");
-    printf("7.  Simulacao de Tabela Hashing (Q7)\n");
+    printf("1.  Simulacao de Tabela Hashing (Q7)\n");
     printf("0. Sair\n");
     printf("-------------------------------------------\n");
-    printf("Escolha uma opção: ");
+    printf("Escolha uma opcao: ");
 }
 
 int main() {
@@ -26,7 +26,7 @@ int main() {
             // Limpa o buffer em caso de entrada não numérica
             while (getchar() != '\n'); 
             escolha = -1; 
-            printf("\nEntrada invalida. Por favor, digite um número.\n");
+            printf("\nEntrada invalida. Por favor, digite um numero.\n");
             continue;
         }
         printf("\n");
